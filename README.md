@@ -7,6 +7,7 @@ Configuration Structure
 To ensure scalability and maintainability, the repository should adhere to a specific structure: Repository Root contains the Jenkinsfile, azure-pipelines.yml, and global configuration files like versions.tf. The Environments Directory houses separate, isolated folders for each deployment environment, such as environments/dev and environments/prod. Each environment folder contains its own variable file and main configuration, allowing for unique settings like size or capacity per environment. The Modules Directory contains reusable blocks of Terraform code, for instance, modules/vnet or modules/app_service. This promotes the DRY (Don't Repeat Yourself) principle and ensures consistency across environments.
 
 <img width="1814" height="1008" alt="Screenshot from 2025-10-07 17-15-55" src="https://github.com/user-attachments/assets/d4027bd1-a14b-4d11-b35b-e552c1bb476f" />
+
 <img width="1814" height="1008" alt="Screenshot from 2025-10-07 17-23-55" src="https://github.com/user-attachments/assets/f3f6b37a-0e27-493b-a116-4e9695a5693f" />
 
 
