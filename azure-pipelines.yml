@@ -1,0 +1,105 @@
+trigger:
+- main
+
+variables:
+  - name: adminPassword
+    value: $(TF_VAR_admin_password)
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: PrepareAndPlan
+  displayName: 'Prepare & Plan Terraform'
+  jobs:
+  - job: Plan
+    displayName: 'Terraform Plan'
+    steps:
+    
+    - task: TerraformInstaller@1
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+
+    - task: AzureCLI@2
+      displayName: 'Azure Login (Implicit)'
+      inputs:
+        azureSubscription: 'meowmeow'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Azure credentials sourced successfully."
+          # az account set --subscription $(AzureSubscriptionId)
+
+    - task: CmdLine@2
+      displayName: 'Terraform Init'
+      inputs:
+        script: |
+          terraform init -upgrade
+        workingDirectory: 'environments/dev'
+
+    - task: CmdLine@2
+      displayName: 'Terraform Validate'
+      inputs:
+        script: |
+          terraform validate
+        workingDirectory: 'environments/dev'
+
+    - task: CmdLine@2
+      displayName: 'Terraform Plan'
+      inputs:
+        script: |
+          terraform plan -var="admin_password=$(adminPassword)" -out=tfplan
+        workingDirectory: 'environments/dev'
+
+- stage: DeploymentApproval
+  displayName: 'Manual Review'
+  jobs:
+  - deployment: Review
+    displayName: 'Deployment Approval'
+    environment: 'ProdEnvironment'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - script: echo "Plan complete. Awaiting manual approval to apply changes."
+              displayName: 'Awaiting Approval'
+
+- stage: ApplyDeployment
+  displayName: 'Apply Terraform Changes'
+  dependsOn: DeploymentApproval
+  condition: succeeded()
+
+  jobs:
+  - job: Apply
+    displayName: 'Terraform Apply'
+    steps:
+    
+    - task: AzureCLI@2
+      displayName: 'Azure Re-Login'
+      inputs:
+        azureSubscription: 'meowmeow'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Azure re-authenticated."
+          
+    - task: TerraformInstaller@1
+      displayName: 'Ensure Terraform is Installed'
+      inputs:
+        terraformVersion: 'latest'
+
+    - task: CmdLine@2
+      displayName: 'Terraform Apply'
+      inputs:
+        script: |
+          terraform apply -auto-approve tfplan
+        workingDirectory: 'environments/dev'
+
+    - task: CmdLine@2
+      displayName: 'Output Deployment Details'
+      inputs:
+        script: |
+          terraform output -json > output.json
+          cat output.json
+        workingDirectory: 'environments/dev'
