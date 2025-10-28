@@ -44,10 +44,6 @@ pipeline {
         }
     }
 
-    parameters {
-        booleanParam(name: 'APPLY_CHANGES', defaultValue: false, description: 'Apply Terraform changes automatically')
-    }
-
     post {
         always {
             cleanWs()
