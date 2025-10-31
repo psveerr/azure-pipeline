@@ -2,8 +2,8 @@ resource "azurerm_public_ip" "app_gateway_ip" {
   name                = "${var.environment}-app-gateway-public-ip"
   location            = var.location
   resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
+  allocation_method   = var.public_ip_allocation_method
+  sku                 = var.public_ip_sku
 }
 
 resource "azurerm_application_gateway" "app_gateway" {
@@ -12,9 +12,9 @@ resource "azurerm_application_gateway" "app_gateway" {
   resource_group_name = var.resource_group_name
 
   sku {
-    name     = "Standard_v2"
-    tier     = "Standard_v2"
-    capacity = 1
+    name     = var.app_gateway_sku_name
+    tier     = var.app_gateway_sku_tier
+    capacity = var.app_gateway_capacity
   }
 
   gateway_ip_configuration {
@@ -23,8 +23,8 @@ resource "azurerm_application_gateway" "app_gateway" {
   }
 
   frontend_port {
-    name = "http-port"
-    port = 80
+    name = var.frontend_port_http_name
+    port = var.frontend_port_http_port
   }
 
   frontend_ip_configuration {
@@ -33,43 +33,43 @@ resource "azurerm_application_gateway" "app_gateway" {
   }
 
   backend_address_pool {
-    name         = "backend-pool"
+    name         = var.backend_pool_name
     ip_addresses = var.backend_ip_addresses
   }
 
   backend_http_settings {
-    name                           = "http-settings"
-    cookie_based_affinity          = "Disabled"
-    port                           = 80
-    protocol                       = "Http"
-    request_timeout                = 60
-    probe_name                     = "health-probe"
-    host_name                      = "localhost"
+    name                    = var.http_settings_name
+    cookie_based_affinity   = var.cookie_based_affinity
+    port                    = var.backend_http_port
+    protocol                = var.backend_http_protocol
+    request_timeout         = var.request_timeout
+    probe_name              = var.probe_name
+    host_name               = var.backend_host_name
   }
 
   http_listener {
-    name                           = "http-listener"
+    name                           = var.http_listener_name
     frontend_ip_configuration_name = "default-frontend-ip"
-    frontend_port_name             = "http-port"
-    protocol                       = "Http"
+    frontend_port_name             = var.frontend_port_http_name
+    protocol                       = var.http_listener_protocol
   }
 
   request_routing_rule {
-    name                       = "routing-rule"
-    rule_type                  = "Basic"
-    http_listener_name         = "http-listener"
-    backend_address_pool_name  = "backend-pool"
-    backend_http_settings_name = "http-settings"
-    priority                   = 100
+    name                       = var.routing_rule_name
+    rule_type                  = var.routing_rule_type
+    http_listener_name         = var.http_listener_name
+    backend_address_pool_name  = var.backend_pool_name
+    backend_http_settings_name = var.http_settings_name
+    priority                   = var.routing_rule_priority
   }
 
   probe {
-    name                = "health-probe"
-    protocol            = "Http"
-    host                = "localhost"
-    path                = "/"
-    interval            = 30
-    timeout             = 30
-    unhealthy_threshold = 3
+    name                = var.probe_name
+    protocol            = var.probe_protocol
+    host                = var.probe_host
+    path                = var.probe_path
+    interval            = var.probe_interval
+    timeout             = var.probe_timeout
+    unhealthy_threshold = var.probe_unhealthy_threshold
   }
 }
