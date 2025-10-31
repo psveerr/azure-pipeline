@@ -30,26 +30,26 @@ resource "azurerm_network_security_group" "nsg" {
   resource_group_name = azurerm_resource_group.rg.name
 
   security_rule {
-    name                       = "AllowSSH"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "Internet"
-    destination_address_prefix = "*"
+    name                       = var.ssh_rule_name
+    priority                   = var.ssh_rule_priority
+    direction                  = var.ssh_rule_direction
+    access                     = var.ssh_rule_access
+    protocol                   = var.ssh_rule_protocol
+    source_port_range          = var.ssh_source_port_range
+    destination_port_range     = var.ssh_destination_port_range
+    source_address_prefix      = var.ssh_source_address_prefix
+    destination_address_prefix = var.ssh_destination_address_prefix
   }
 
   security_rule {
-    name                       = "AllowHTTP"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "Internet"
-    destination_address_prefix = "*"
+    name                       = var.http_rule_name
+    priority                   = var.http_rule_priority
+    direction                  = var.http_rule_direction
+    access                     = var.http_rule_access
+    protocol                   = var.http_rule_protocol
+    source_port_range          = var.http_source_port_range
+    destination_port_range     = var.http_destination_port_range
+    source_address_prefix      = var.http_source_address_prefix
+    destination_address_prefix = var.http_destination_address_prefix
   }
 }
