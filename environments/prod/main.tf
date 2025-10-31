@@ -4,21 +4,21 @@ provider "azurerm" {
 
 module "network" {
   source                     = "../../modules/networking"
-  environment                = "prod"
+  environment                = var.environment
   location                   = var.location
   resource_group_name        = var.resource_group_name
-  public_subnet_address_prefixes = var.public_subnet_address_prefixes
+  public_subnet_address_prefixes  = var.public_subnet_address_prefixes
   private_subnet_address_prefixes = var.private_subnet_address_prefixes
 }
 
 module "nginx_app" {
   source      = "../../modules/nginx"
-  environment = "prod"
+  environment = var.environment
 }
 
 module "compute" {
   source              = "../../modules/compute"
-  environment         = "prod"
+  environment         = var.environment
   location            = module.network.location
   resource_group_name = module.network.resource_group_name
   private_subnet_id   = module.network.private_subnet_id
@@ -30,11 +30,10 @@ module "compute" {
 }
 
 module "loadbalancer" {
-  source               = "../../modules/loadbalancer"
-  environment          = "prod"
-  location             = module.network.location
-  resource_group_name  = module.network.resource_group_name
-  public_subnet_id     = module.network.public_subnet_id
+  source              = "../../modules/loadbalancer"
+  environment         = var.environment
+  location            = module.network.location
+  resource_group_name = module.network.resource_group_name
+  public_subnet_id    = module.network.public_subnet_id
   backend_ip_addresses = module.compute.private_ips
-
 }
