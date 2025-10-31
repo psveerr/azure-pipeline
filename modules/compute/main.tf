@@ -26,22 +26,22 @@ resource "azurerm_virtual_machine" "vm" {
   vm_size               = var.vm_size
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
+    publisher = var.os_publisher
+    offer     = var.os_offer
+    sku       = var.os_sku
+    version   = var.os_version
   }
 
   storage_os_disk {
     name              = "osdisk-${count.index}"
-    caching           = "ReadWrite"
+    caching           = var.os_disk_caching
     create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+    managed_disk_type = var.os_disk_type
   }
 
   os_profile {
     computer_name  = "${var.environment}-vm-${count.index}"
-    admin_username = "adminuser"
+    admin_username = var.admin_username
     admin_password = var.admin_password
     custom_data    = var.user_data_script
   }
@@ -49,5 +49,4 @@ resource "azurerm_virtual_machine" "vm" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
-
 }
