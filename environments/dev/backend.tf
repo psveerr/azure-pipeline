@@ -3,7 +3,7 @@ terraform {
     resource_group_name  = "veer-rg"
     storage_account_name = "zoopzoop"
     container_name       = "meowgng"
-    key                  = "vnet-compute/prod.terraform.tfstate"
+    key                  = "vnet-compute/dev.terraform.tfstate"
     use_azuread_auth     = true
   }
 }
